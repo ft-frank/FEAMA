@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FEAMA Safety App</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; background: #f0f0f0; min-height: 100vh; }
+    .app { width: 375px; min-height: 100vh; position: relative; overflow: hidden; }
+    .page { display: none; flex-direction: column; min-height: 100vh; }
+    .page.active { display: flex; }
+
+    /* Landing Page */
+    #landing {
+      background: #f5d442;
+      align-items: center; justify-content: center; text-align: center; padding: 40px 30px;
+    }
+    #landing .brand { font-size: 13px; font-weight: 700; letter-spacing: 1px; position: absolute; top: 20px; left: 20px; text-align: left; line-height: 1.4; color: #333; }
+    #landing .logo { font-size: 40px; margin-bottom: 10px; }
+    #landing h1 { font-size: 28px; font-weight: 700; margin-bottom: 50px; color: #1a1a1a; line-height: 1.3; }
+    #landing .btn-group { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 260px; }
+    #landing .btn-group button {
+      padding: 14px 24px; border-radius: 30px; border: 2px solid #b89a2a;
+      background: rgba(255,255,255,0.7); font-size: 16px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    #landing .btn-group button:hover { background: rgba(255,255,255,0.95); }
+
+    /* Sign Up Page */
+    #signup {
+      background: #e0f5e8; padding: 40px 30px; justify-content: space-between;
+    }
+    #signup h1 { font-size: 36px; font-weight: 700; margin-bottom: 10px; }
+    #signup hr { border: none; border-top: 1px solid #333; margin-bottom: 30px; }
+    #signup .fields { display: flex; flex-direction: column; gap: 24px; margin-bottom: 30px; }
+    #signup .field { display: flex; align-items: center; gap: 12px; font-size: 18px; }
+    #signup .field .dot { width: 12px; height: 12px; background: #1a1a1a; border-radius: 50%; flex-shrink: 0; }
+    #signup .field input {
+      border: none; border-bottom: 1px solid #aaa; background: transparent;
+      padding: 6px 0; font-size: 16px; flex: 1; outline: none;
+    }
+    #signup .social { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-bottom: 40px; }
+    #signup .social button {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+      border: 1px solid #ccc; border-radius: 6px; background: #fff;
+      font-size: 14px; cursor: pointer; min-width: 220px; justify-content: center;
+    }
+    #signup .social button:hover { background: #f5f5f5; }
+    #signup .submit-btn {
+      width: 100%; padding: 14px; border-radius: 30px; border: none;
+      background: #2a8a5a; color: #fff; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-bottom: 30px;
+    }
+    #signup .submit-btn:hover { background: #237a4e; }
+    #signup .help { border-top: 1px solid #333; padding-top: 20px; }
+    #signup .help h2 { font-size: 24px; margin-bottom: 4px; }
+    #signup .help p { font-size: 13px; color: #555; }
+    /* Login Page */
+    #login {
+      background: #e0f5e8; padding: 40px 30px; justify-content: space-between;
+    }
+    #login h1 { font-size: 36px; font-weight: 700; margin-bottom: 10px; }
+    #login hr { border: none; border-top: 1px solid #333; margin-bottom: 30px; }
+    #login .fields { display: flex; flex-direction: column; gap: 24px; margin-bottom: 30px; }
+    #login .field { display: flex; align-items: center; gap: 12px; font-size: 18px; }
+    #login .field .dot { width: 12px; height: 12px; background: #1a1a1a; border-radius: 50%; flex-shrink: 0; }
+    #login .field input {
+      border: none; border-bottom: 1px solid #aaa; background: transparent;
+      padding: 6px 0; font-size: 16px; flex: 1; outline: none;
+    }
+    #login .submit-btn {
+      width: 100%; padding: 14px; border-radius: 30px; border: none;
+      background: #2a8a5a; color: #fff; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-bottom: 30px;
+    }
+    #login .submit-btn:hover { background: #237a4e; }
+    #login .help { border-top: 1px solid #333; padding-top: 20px; }
+    #login .help h2 { font-size: 24px; margin-bottom: 4px; }
+    #login .help p { font-size: 13px; color: #555; }
+
+    .back-link { font-size: 14px; color: #555; cursor: pointer; margin-bottom: 16px; display: inline-block; }
+    .back-link:hover { color: #111; }
+
+    /* Helpee Page */
+    #helpee {
+      background: #1a1a2e; align-items: center; padding: 30px 20px; justify-content: space-between;
+    }
+    #helpee .header { width: 100%; }
+    #helpee h1 {
+      font-size: 28px; font-weight: 700; border: 3px solid #3a8fd4;
+      display: inline-block; padding: 4px 14px; background: rgba(255,255,255,0.15); color: #fff;
+    }
+    #helpee .emergency-btn {
+      width: 200px; height: 200px; border-radius: 50%; background: #c0272d;
+      border: 6px solid #999; color: #fff; font-size: 28px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3); transition: transform 0.1s;
+    }
+    #helpee .emergency-btn:active { transform: scale(0.95); }
+    #helpee .contacts { width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 0 10px; }
+    #helpee .contacts a {
+      font-size: 16px; color: #fff; text-decoration: none; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; border-radius: 12px; background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s;
+    }
+    #helpee .contacts a:hover { background: rgba(255,255,255,0.2); }
+    #helpee .contacts a::before { content: "\27A1"; font-size: 14px; }
+
+    /* Volunteer Page */
+    #volunteer {
+      background: #a0f5a0;
+      padding: 30px 20px; gap: 20px;
+    }
+    #volunteer h1 {
+      font-size: 28px; font-weight: 700; border: 3px solid #333;
+      display: inline-block; padding: 4px 14px; background: rgba(255,255,255,0.3);
+    }
+    #volunteer .location-label { font-size: 22px; font-weight: 700; margin-top: 10px; }
+    #volunteer .map-placeholder {
+      width: 100%; height: 220px; background: #ddd; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; color: #666;
+      font-size: 14px; border: 1px solid #bbb; overflow: hidden; position: relative;
+    }
+    #volunteer .map-placeholder .grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(#ccc 1px, transparent 1px), linear-gradient(90deg, #ccc 1px, transparent 1px);
+      background-size: 30px 30px; opacity: 0.5;
+    }
+    #volunteer .map-placeholder .pin { font-size: 36px; z-index: 1; }
+    #volunteer .spacer { flex: 1; }
+    #volunteer .contacts { display: flex; flex-direction: column; gap: 12px; padding: 0 10px; }
+    #volunteer .contacts a {
+      font-size: 16px; color: #1a1a1a; text-decoration: none; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; border-radius: 12px; background: rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.12); transition: background 0.2s;
+    }
+    #volunteer .contacts a:hover { background: rgba(0,0,0,0.12); }
+    #volunteer .contacts a::before { content: "\27A1"; font-size: 14px; }
+
+    /* Chat Page */
+    #chat {
+      background: #f5d462; padding: 0;
+    }
+    #chat .chat-header {
+      background: rgba(255,255,255,0.15); padding: 16px 20px;
+      font-size: 24px; font-weight: 700; backdrop-filter: blur(4px);
+    }
+    #chat .chat-header .back-link { margin-bottom: 0; margin-right: 12px; }
+    #chat .messages { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+    .msg { display: flex; align-items: flex-start; gap: 10px; max-width: 85%; }
+    .msg.volunteer { align-self: flex-start; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg .avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: #ccc;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .msg .bubble {
+      background: #fff; border-radius: 18px; padding: 10px 16px;
+      font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .msg .label { font-size: 11px; color: #555; margin-bottom: 2px; }
+    #chat .chat-input {
+      display: flex; align-items: center; padding: 10px 16px; gap: 10px;
+      background: rgba(255,255,255,0.3); backdrop-filter: blur(4px);
+    }
+    #chat .chat-input input {
+      flex: 1; padding: 10px 16px; border-radius: 20px; border: 1px solid #ccc;
+      font-size: 14px; outline: none; background: #fff;
+    }
+    #chat .chat-input button {
+      width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: #3a8fd4; color: #fff; font-size: 18px; cursor: pointer;
+    }
+    #chat .chat-input button:hover { background: #2d7abc; }
+
+    /* Emergency overlay */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+    .overlay.active { display: flex; }
+    .overlay-content {
+      background: #fff; border-radius: 16px; padding: 30px; text-align: center;
+      max-width: 300px; width: 90%;
+    }
+    .overlay-content h2 { color: #c0272d; margin-bottom: 10px; }
+    .overlay-content p { font-size: 14px; color: #555; margin-bottom: 20px; }
+    .overlay-content button {
+      padding: 10px 30px; border-radius: 20px; border: none;
+      background: #c0272d; color: #fff; font-size: 16px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Landing Page -->
+  <div class="page active" id="landing">
+    <div class="brand">FEAMA<br>SAFETY<br>APP</div>
+    <div class="logo">&#10048;</div>
+    <h1>Are you a Volunteer or a Helpee?</h1>
+    <div class="btn-group">
+      <button onclick="navigate('signup', 'volunteer')">Register as a Volunteer</button>
+      <button onclick="navigate('signup', 'helpee')">Register as a Helpee</button>
+      <button onclick="navigate('login')" style="background:transparent; border-color:#7a6a1a; font-weight:600;">Login</button>
+    </div>
+  </div>
+
+  <!-- Sign Up Page -->
+  <div class="page" id="signup">
+    <div>
+      <span class="back-link" onclick="navigate('landing')">&larr; Back</span>
+      <h1>SIGN UP</h1>
+      <hr>
+      <div class="fields">
+        <div class="field"><span class="dot"></span><input type="email" placeholder="Email"></div>
+        <div class="field"><span class="dot"></span><input type="password" placeholder="Password"></div>
+        <div class="field"><span class="dot"></span><input type="text" placeholder="Verification ID"></div>
+      </div>
+      <button class="submit-btn" onclick="navigateToRole()">Sign Up</button>
+      <div class="social">
+        <button><span style="font-weight:700;font-size:18px;color:#4285f4">G</span> Sign in with Google</button>
+        <button><span style="font-weight:700;font-size:18px;color:#1877f2">f</span> Sign in with Facebook</button>
+      </div>
+    </div>
+    <div class="help">
+      <h2>Need Help?</h2>
+      <p>Contact Info:<br>92X XXX XXX</p>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div class="page" id="login">
+    <div>
+      <span class="back-link" onclick="navigate('landing')">&larr; Back</span>
+      <h1>LOGIN</h1>
+      <hr>
+      <div class="fields">
+        <div class="field"><span class="dot"></span><input type="email" placeholder="Email"></div>
+        <div class="field"><span class="dot"></span><input type="password" placeholder="Password"></div>
+      </div>
+      <button class="submit-btn" onclick="loginDemo()">Login</button>
+    </div>
+    <div class="help">
+      <h2>Need Help?</h2>
+      <p>Contact Info:<br>92X XXX XXX</p>
+    </div>
+  </div>
+
+  <!-- Helpee Page -->
+  <div class="page" id="helpee">
+    <div class="header">
+      <span class="back-link" onclick="navigate('landing')" style="color:#fff">&larr; Logout</span>
+      <h1>Helpee Page</h1>
+    </div>
+    <button class="emergency-btn" onclick="showEmergency()">Emergency</button>
+    <div class="contacts">
+      <a onclick="navigate('chat')">Contact a Volunteer</a>
+      <a onclick="showEmergency()">Contact Support</a>
+    </div>
+  </div>
+
+  <!-- Volunteer Page -->
+  <div class="page" id="volunteer">
+    <span class="back-link" onclick="navigate('landing')">&larr; Logout</span>
+    <h1>Volunteer Page</h1>
+    <div class="location-label">Location &#x1F4CD;</div>
+    <div class="map-placeholder">
+      <div class="grid"></div>
+      <span class="pin">&#128205;</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="contacts">
+      <a onclick="navigate('chat')">Contact Helpee</a>
+      <a onclick="showEmergency()">Contact Support</a>
+      <a onclick="navigate('chat')">Contact other Volunteers</a>
+    </div>
+  </div>
+
+  <!-- Chat Page -->
+  <div class="page" id="chat">
+    <div class="chat-header">
+      <span class="back-link" onclick="goBackFromChat()">&larr;</span> Chat Page
+    </div>
+    <div class="messages">
+      <div class="msg volunteer">
+        <div class="avatar">&#128100;</div>
+        <div><div class="label">Volunteer</div><div class="bubble">Hi, how can I help you?</div></div>
+      </div>
+      <div class="msg user">
+        <div class="avatar">&#128100;</div>
+        <div><div class="label" style="text-align:right">User</div><div class="bubble">I need assistance at my location.</div></div>
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" placeholder="Send Message" id="chatMsg" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">&#9654;</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Emergency Overlay -->
+<div class="overlay" id="emergencyOverlay">
+  <div class="overlay-content">
+    <h2>&#128680; Emergency Alert</h2>
+    <p>Your location has been shared with nearby volunteers and emergency services.</p>
+    <button onclick="closeEmergency()">OK</button>
+  </div>
+</div>
+
+<script>
+  let currentRole = 'helpee';
+  let previousPage = 'helpee';
+
+  function navigate(page, role) {
+    if (role) currentRole = role;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    if (page !== 'chat') previousPage = page;
+    document.getElementById(page).classList.add('active');
+  }
+
+  function navigateToRole() {
+    navigate(currentRole);
+  }
+
+  function loginDemo() {
+    // In a real app, the backend determines the role from the account.
+    // For the prototype, alternate between helpee and volunteer.
+    const roles = ['helpee', 'volunteer'];
+    const role = roles[Math.floor(Math.random() * 2)];
+    currentRole = role;
+    navigate(role);
+  }
+
+  function goBackFromChat() {
+    navigate(previousPage || currentRole);
+  }
+
+  function showEmergency() {
+    document.getElementById('emergencyOverlay').classList.add('active');
+  }
+
+  function closeEmergency() {
+    document.getElementById('emergencyOverlay').classList.remove('active');
+  }
+
+  function sendMsg() {
+    const input = document.getElementById('chatMsg');
+    const text = input.value.trim();
+    if (!text) return;
+    const msgs = document.querySelector('.messages');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `<div class="avatar">&#128100;</div><div><div class="label" style="text-align:right">User</div><div class="bubble">${escapeHtml(text)}</div></div>`;
+    msgs.appendChild(div);
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+
+</body>
+</html>
